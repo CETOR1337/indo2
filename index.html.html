@@ -1,0 +1,1075 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>印尼工業區進駐評估 — 董事長決策一覽表 v3.0</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700;900&family=Noto+Serif+TC:wght@700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<style>
+  :root {
+    --navy:   #0f2035;
+    --navy2:  #1a3150;
+    --gold:   #c8962a;
+    --gold-l: #f0d28a;
+    --paper:  #f7f4ee;
+    --white:  #ffffff;
+    --smoke:  #f0ede5;
+    --rule:   #ddd8cc;
+    --ink:    #1c1c1c;
+    --muted:  #6b6357;
+    --good:   #1f6b45;
+    --good-bg:#e8f5ee;
+    --warn:   #8a5f10;
+    --warn-bg:#fef5e0;
+    --bad:    #8f2020;
+    --bad-bg: #faeaea;
+    --sans:   'Noto Sans TC', sans-serif;
+    --serif:  'Noto Serif TC', serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: var(--sans);
+    background: var(--smoke);
+    color: var(--ink);
+    font-size: 14px;
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+
+  /* ── TOP HEADER ─────────────────────────────── */
+  .header {
+    background: var(--navy);
+    color: white;
+    padding: 28px 48px 24px;
+    border-bottom: 4px solid var(--gold);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 24px;
+  }
+  .header-left { flex: 1; }
+  .header-eyebrow {
+    font-size: 10px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--gold-l);
+    margin-bottom: 6px;
+  }
+  .header-title {
+    font-family: var(--serif);
+    font-size: 26px;
+    font-weight: 900;
+    color: white;
+    line-height: 1.25;
+  }
+  .header-subtitle {
+    font-size: 12px;
+    color: rgba(255,255,255,0.6);
+    margin-top: 6px;
+  }
+  .header-right {
+    text-align: right;
+    flex-shrink: 0;
+  }
+  .header-date {
+    font-size: 11px;
+    color: rgba(255,255,255,0.5);
+    letter-spacing: 0.08em;
+  }
+  .header-ver {
+    display: inline-block;
+    margin-top: 6px;
+    background: var(--gold);
+    color: var(--navy);
+    font-weight: 700;
+    font-size: 11px;
+    padding: 4px 14px;
+    letter-spacing: 0.08em;
+  }
+
+  /* ── NAV TABS ─────────────────────────────── */
+  .nav {
+    background: var(--navy2);
+    display: flex;
+    overflow-x: auto;
+    padding: 0 48px;
+    gap: 0;
+    position: sticky;
+    top: 100px;
+    z-index: 99;
+  }
+  .nav-btn {
+    padding: 12px 22px;
+    font-size: 12px;
+    font-weight: 600;
+    color: rgba(255,255,255,0.55);
+    cursor: pointer;
+    border: none;
+    background: none;
+    border-bottom: 3px solid transparent;
+    white-space: nowrap;
+    transition: all 0.2s;
+    letter-spacing: 0.04em;
+    font-family: var(--sans);
+  }
+  .nav-btn:hover { color: white; }
+  .nav-btn.active {
+    color: var(--gold-l);
+    border-bottom-color: var(--gold);
+  }
+
+  /* ── MAIN CONTENT ─────────────────────────────── */
+  .main { max-width: 1320px; margin: 0 auto; padding: 32px 48px 80px; }
+
+  /* ── PANELS (sections) ─────────────────────────────── */
+  .panel { display: none; }
+  .panel.active { display: block; }
+
+  /* ── SECTION LABEL ─────────────────────────────── */
+  .section-label {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 20px;
+    padding-bottom: 14px;
+    border-bottom: 2px solid var(--navy);
+  }
+  .section-label h2 {
+    font-family: var(--serif);
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--navy);
+  }
+  .section-label .section-num {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--gold);
+    letter-spacing: 0.15em;
+    background: var(--navy);
+    padding: 3px 10px;
+    flex-shrink: 0;
+  }
+  .section-lead {
+    margin-left: auto;
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  /* ── MAP CONTAINER ─────────────────────────────── */
+  .map-frame {
+    background: white;
+    border: 1px solid var(--rule);
+    padding: 16px;
+    margin-bottom: 20px;
+  }
+  #realmap {
+    width: 100%;
+    height: 580px;
+    border: 1px solid var(--rule);
+  }
+  .map-legend {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 12px;
+    margin-top: 16px;
+  }
+  .legend-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 10px 12px;
+    background: #fafaf5;
+    border: 1px solid var(--rule);
+    font-size: 12px;
+  }
+  .legend-dot {
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    margin-top: 3px;
+    border: 2px solid white;
+    box-shadow: 0 0 0 1px rgba(0,0,0,.2);
+  }
+  .legend-dot.estate { background: #c0392b; }
+  .legend-dot.airport { background: #1e6091; }
+  .legend-dot.port { background: #1f6b45; }
+  .legend-item b { display: block; color: var(--navy); margin-bottom: 2px; font-size: 12.5px; }
+  .legend-item small { color: var(--muted); font-size: 11px; line-height: 1.4; }
+
+  /* ── CUSTOM LEAFLET MARKERS ─────────────────────────────── */
+  .marker-estate {
+    background: #c0392b;
+    color: white;
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    border: 3px solid white;
+    box-shadow: 0 2px 6px rgba(0,0,0,.4);
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 900;
+    font-family: var(--sans);
+    font-size: 13px;
+  }
+  .marker-airport {
+    background: #1e6091;
+    color: white;
+    width: 26px; height: 26px;
+    border: 3px solid white;
+    box-shadow: 0 2px 5px rgba(0,0,0,.35);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px;
+  }
+  .marker-port {
+    background: #1f6b45;
+    color: white;
+    width: 24px; height: 24px;
+    border: 3px solid white;
+    border-radius: 4px;
+    box-shadow: 0 2px 5px rgba(0,0,0,.35);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px;
+  }
+  .leaflet-popup-content-wrapper { border-radius: 4px; }
+  .leaflet-popup-content {
+    margin: 12px 16px;
+    font-family: var(--sans);
+    font-size: 12px;
+    line-height: 1.5;
+  }
+  .leaflet-popup-content b { color: var(--navy); display: block; margin-bottom: 4px; font-size: 13px; }
+
+  /* ── OVERVIEW CARDS ─────────────────────────────── */
+  .overview-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1px;
+    background: var(--rule);
+    border: 1px solid var(--rule);
+    margin-bottom: 28px;
+  }
+  .park-card {
+    background: white;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+  }
+  .park-card-head {
+    padding: 16px 18px 12px;
+    border-bottom: 3px solid;
+  }
+  .park-card:nth-child(1) .park-card-head { border-color: #1f6b45; }
+  .park-card:nth-child(2) .park-card-head { border-color: #0f4c8a; }
+  .park-card:nth-child(3) .park-card-head { border-color: #c8962a; }
+  .park-card:nth-child(4) .park-card-head { border-color: #7b3f8c; }
+  .park-code {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    color: var(--muted);
+    margin-bottom: 4px;
+  }
+  .park-name {
+    font-family: var(--serif);
+    font-size: 17px;
+    font-weight: 700;
+    line-height: 1.25;
+    color: var(--navy);
+  }
+  .park-name-en {
+    font-size: 11px;
+    color: var(--muted);
+    font-weight: 400;
+    letter-spacing: .03em;
+    margin-top: 2px;
+  }
+  .park-loc {
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 4px;
+  }
+  .park-card-body { padding: 12px 18px 16px; flex: 1; }
+  .park-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 5px 0;
+    border-bottom: 1px dashed var(--rule);
+    font-size: 12.5px;
+  }
+  .park-row:last-child { border-bottom: none; }
+  .park-row .pk { color: var(--muted); flex-shrink: 0; }
+  .park-row .pv { font-weight: 600; text-align: right; color: var(--ink); }
+
+  /* ── COMPARISON TABLE ─────────────────────────────── */
+  .cmp-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    border: 1px solid var(--rule);
+    font-size: 13px;
+  }
+  .cmp-table thead tr th {
+    background: var(--navy);
+    color: white;
+    padding: 14px 16px;
+    text-align: left;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    vertical-align: top;
+  }
+  .cmp-table thead .sub { display: block; font-size: 10px; color: rgba(255,255,255,0.5); font-weight: 400; margin-top: 2px; letter-spacing: 0.1em; }
+  .cmp-table tbody td {
+    padding: 13px 16px;
+    border-bottom: 1px solid var(--rule);
+    vertical-align: top;
+    line-height: 1.55;
+  }
+  .cmp-table tbody tr:last-child td { border-bottom: none; }
+  .cmp-table tbody tr:nth-child(even) { background: #fcfaf5; }
+  .cmp-table .row-hd {
+    font-weight: 700;
+    color: var(--navy);
+    font-size: 13.5px;
+    background: #f4f1e8 !important;
+    width: 14%;
+  }
+  .cmp-table .row-hd small {
+    display: block;
+    font-weight: 400;
+    color: var(--muted);
+    font-size: 11px;
+    margin-top: 2px;
+  }
+  .data-num {
+    font-family: var(--sans);
+    font-weight: 700;
+    color: var(--navy);
+  }
+
+  /* ── BADGES (neutral only) ─────────────────────────────── */
+  .badge {
+    display: inline-block;
+    font-size: 10.5px;
+    font-weight: 600;
+    padding: 2px 9px;
+    border-radius: 2px;
+    line-height: 1.6;
+    margin-top: 3px;
+  }
+  .badge.neu  { background: #eeebe3; color: var(--muted); }
+
+  /* ── INFO BOX ─────────────────────────────── */
+  .infobox {
+    margin-top: 20px;
+    padding: 16px 20px;
+    border-left: 4px solid var(--navy);
+    background: #eef3f9;
+    font-size: 13px;
+    line-height: 1.65;
+  }
+  .infobox b { color: var(--navy); }
+
+  /* ── CHECKLIST ─────────────────────────────── */
+  .checklist { display: flex; flex-direction: column; gap: 10px; }
+  .check-item {
+    display: grid;
+    grid-template-columns: 36px 1fr auto;
+    align-items: start;
+    gap: 14px;
+    background: white;
+    border: 1px solid var(--rule);
+    padding: 14px 18px;
+  }
+  .check-num {
+    width: 28px; height: 28px;
+    background: var(--navy);
+    color: white;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 700;
+    flex-shrink: 0;
+  }
+  .check-body { font-size: 13px; line-height: 1.6; }
+  .check-body b { color: var(--navy); }
+  .check-body small { display: block; color: var(--muted); font-size: 11.5px; margin-top: 3px; }
+  .check-who {
+    font-size: 11px;
+    text-align: right;
+    color: var(--muted);
+    flex-shrink: 0;
+    white-space: nowrap;
+    padding-top: 4px;
+  }
+
+  /* ── RESPONSIVE ─────────────────────────────── */
+  @media (max-width: 860px) {
+    .header { padding: 20px 20px 16px; flex-direction: column; align-items: flex-start; }
+    .nav { top: auto; padding: 0 16px; }
+    .main { padding: 20px 16px 60px; }
+    .overview-grid { grid-template-columns: 1fr 1fr; }
+    #realmap { height: 420px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-left">
+    <div class="header-eyebrow">印尼西爪哇 &amp; Banten · 工業區進駐評估 · 機密文件</div>
+    <div class="header-title">四大工業區比較一覽</div>
+    <div class="header-subtitle">資料截至 2026 年 5 月 · 僅陳述客觀事實，未含主觀推薦</div>
+  </div>
+  <div class="header-right">
+    <div class="header-date">2026 / 05 / 26</div>
+    <div class="header-ver">VERSION 3.0</div>
+  </div>
+</div>
+
+<!-- NAV -->
+<div class="nav">
+  <button class="nav-btn active" onclick="show('map',this)">① 區位地圖</button>
+  <button class="nav-btn" onclick="show('overview',this)">② 園區總覽</button>
+  <button class="nav-btn" onclick="show('wage',this)">③ 2026 工資</button>
+  <button class="nav-btn" onclick="show('infra',this)">④ 水電廢水設施</button>
+  <button class="nav-btn" onclick="show('airport',this)">⑤ 機場 / 港口</button>
+  <button class="nav-btn" onclick="show('life',this)">⑥ 生活機能</button>
+  <button class="nav-btn" onclick="show('todo',this)">⑦ 決策待辦</button>
+</div>
+
+<div class="main">
+
+<!-- ─────────── PANEL 1: MAP ─────────── -->
+<div class="panel active" id="map">
+  <div class="section-label">
+    <span class="section-num">MAP</span>
+    <h2>爪哇島區位地圖</h2>
+    <span class="section-lead">OpenStreetMap · 四大工業區 × 主要機場 × 主要港口</span>
+  </div>
+
+  <div class="map-frame">
+    <div id="realmap"></div>
+  </div>
+
+  <div class="map-legend">
+    <div class="legend-item">
+      <span class="legend-dot estate"></span>
+      <div>
+        <b>S · Subang Smartpolitan</b>
+        <small>西爪哇省 蘇邦縣 Cipeundeuy<br>PT Suryacipta Swadaya (SSIA)</small>
+      </div>
+    </div>
+    <div class="legend-item">
+      <span class="legend-dot estate"></span>
+      <div>
+        <b>K · 冠西工業園區 (KCI)</b>
+        <small>西爪哇省 蘇加武眉縣 Cikembar<br>PT Cijambe Indah (冠西電子)</small>
+      </div>
+    </div>
+    <div class="legend-item">
+      <span class="legend-dot estate"></span>
+      <div>
+        <b>M · 摩登奇坎德 (MCIE)</b>
+        <small>萬丹省 西朗縣 Cikande<br>Modernland Realty Tbk</small>
+      </div>
+    </div>
+    <div class="legend-item">
+      <span class="legend-dot estate"></span>
+      <div>
+        <b>I · 克塔賈蒂 (KIEM)</b>
+        <small>西爪哇省 馬加蘭卡縣 Kertajati<br>Rebana Metropolitan 計畫</small>
+      </div>
+    </div>
+    <div class="legend-item">
+      <span class="legend-dot airport"></span>
+      <div>
+        <b>CGK · 蘇加諾-哈達國際機場</b>
+        <small>印尼第一大國際機場<br>所有國際航線指定機場</small>
+      </div>
+    </div>
+    <div class="legend-item">
+      <span class="legend-dot airport"></span>
+      <div>
+        <b>KJT · 克塔賈蒂國際機場</b>
+        <small>距 KIEM 5 km<br>目前以國內航班為主</small>
+      </div>
+    </div>
+    <div class="legend-item">
+      <span class="legend-dot port"></span>
+      <div>
+        <b>Tanjung Priok 港</b>
+        <small>北雅加達<br>印尼最大商業港</small>
+      </div>
+    </div>
+    <div class="legend-item">
+      <span class="legend-dot port"></span>
+      <div>
+        <b>Patimban 港</b>
+        <small>蘇邦縣北岸<br>2027 Q1 容量目標 750 萬 TEU</small>
+      </div>
+    </div>
+    <div class="legend-item">
+      <span class="legend-dot port"></span>
+      <div>
+        <b>Merak / Cigading 港</b>
+        <small>萬丹省西端<br>散貨與短程運輸</small>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ─────────── PANEL 2: OVERVIEW ─────────── -->
+<div class="panel" id="overview">
+  <div class="section-label">
+    <span class="section-num">OVERVIEW</span>
+    <h2>四大工業區基本資料</h2>
+  </div>
+
+  <div class="overview-grid">
+
+    <!-- Subang Smartpolitan -->
+    <div class="park-card">
+      <div class="park-card-head">
+        <div class="park-code">SSP</div>
+        <div class="park-name">Subang Smartpolitan</div>
+        <div class="park-name-en">PT Suryacipta Swadaya</div>
+        <div class="park-loc">Cipeundeuy, Kab. Subang, Jawa Barat</div>
+      </div>
+      <div class="park-card-body">
+        <div class="park-row"><span class="pk">總開發面積</span><span class="pv">2,717 ha (工業 1,069 ha)</span></div>
+        <div class="park-row"><span class="pk">開發商</span><span class="pv">PT Suryacipta Swadaya (SSIA)</span></div>
+        <div class="park-row"><span class="pk">啟動年份</span><span class="pv">2020 年</span></div>
+        <div class="park-row"><span class="pk">主要租戶</span><span class="pv">Zhangjiagang Hengyang 等 (招商中)</span></div>
+        <div class="park-row"><span class="pk">所屬計畫</span><span class="pv">Rebana Metropolitan (PSN)</span></div>
+        <div class="park-row"><span class="pk">距 CGK 機場</span><span class="pv">~90 km / 1.5 h</span></div>
+        <div class="park-row"><span class="pk">距 Patimban 港</span><span class="pv">40 km</span></div>
+      </div>
+    </div>
+
+    <!-- KCI Cikembar -->
+    <div class="park-card">
+      <div class="park-card-head">
+        <div class="park-code">KCI</div>
+        <div class="park-name">冠西工業園區</div>
+        <div class="park-name-en">Sukabumi Cikembar</div>
+        <div class="park-loc">Cikembar, Kab. Sukabumi, Jawa Barat</div>
+      </div>
+      <div class="park-card-body">
+        <div class="park-row"><span class="pk">總開發面積</span><span class="pv">229 ha (工廠區 124 ha)</span></div>
+        <div class="park-row"><span class="pk">開發商</span><span class="pv">PT Cijambe Indah (冠西電子)</span></div>
+        <div class="park-row"><span class="pk">投資金額</span><span class="pv">USD 1.1 億</span></div>
+        <div class="park-row"><span class="pk">主要租戶</span><span class="pv">百和工業 (9938)</span></div>
+        <div class="park-row"><span class="pk">集團背景</span><span class="pv">台灣上市公司</span></div>
+        <div class="park-row"><span class="pk">距 CGK 機場</span><span class="pv">~115 km (Bocimi 後 1.5 h)</span></div>
+        <div class="park-row"><span class="pk">廠房租金</span><span class="pv">USD 3 / m² / 月</span></div>
+      </div>
+    </div>
+
+    <!-- MCIE Cikande -->
+    <div class="park-card">
+      <div class="park-card-head">
+        <div class="park-code">MCIE</div>
+        <div class="park-name">摩登奇坎德工業園區</div>
+        <div class="park-name-en">Modern Cikande</div>
+        <div class="park-loc">Cikande, Kab. Serang, Banten</div>
+      </div>
+      <div class="park-card-body">
+        <div class="park-row"><span class="pk">總開發面積</span><span class="pv">3,175 ha (已開發 1,335 ha)</span></div>
+        <div class="park-row"><span class="pk">開發商</span><span class="pv">PT Modernland Realty Tbk</span></div>
+        <div class="park-row"><span class="pk">啟動年份</span><span class="pv">1991 年</span></div>
+        <div class="park-row"><span class="pk">主要租戶</span><span class="pv">306 家 (含 14 家中資)</span></div>
+        <div class="park-row"><span class="pk">集團背景</span><span class="pv">印尼上市公司 (1983)</span></div>
+        <div class="park-row"><span class="pk">距 CGK 機場</span><span class="pv">~68 km / 1.5 h</span></div>
+        <div class="park-row"><span class="pk">Dry Port → Priok</span><span class="pv">火車 37 min</span></div>
+      </div>
+    </div>
+
+    <!-- KIEM Majalengka -->
+    <div class="park-card">
+      <div class="park-card-head">
+        <div class="park-code">KIEM</div>
+        <div class="park-name">克塔賈蒂國際工業園區</div>
+        <div class="park-name-en">Kertajati Industrial Estate</div>
+        <div class="park-loc">Kertajati, Kab. Majalengka, Jawa Barat</div>
+      </div>
+      <div class="park-card-body">
+        <div class="park-row"><span class="pk">總開發面積</span><span class="pv">400 ha (Phase 1)</span></div>
+        <div class="park-row"><span class="pk">開發商</span><span class="pv">PT KIEM</span></div>
+        <div class="park-row"><span class="pk">啟動年份</span><span class="pv">新 (開發初期)</span></div>
+        <div class="park-row"><span class="pk">主要租戶</span><span class="pv">招商階段</span></div>
+        <div class="park-row"><span class="pk">所屬計畫</span><span class="pv">Rebana Metropolitan</span></div>
+        <div class="park-row"><span class="pk">距 KJT 機場</span><span class="pv">5 km / 5 min</span></div>
+        <div class="park-row"><span class="pk">距 CGK 機場</span><span class="pv">~190 km / 3.5 h</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="infobox">
+    <b>所在區域：</b>四大工業區中，Subang Smartpolitan、KCI、KIEM 位於西爪哇省 (Jawa Barat)；MCIE 位於萬丹省 (Banten)。Subang Smartpolitan 與 KIEM 為印尼「Rebana Metropolitan 戰略計畫」一部分，目標以 Patimban 新港與 Kertajati 機場為軸心發展東北西爪哇新工業帶。
+  </div>
+</div>
+
+<!-- ─────────── PANEL 3: WAGE ─────────── -->
+<div class="panel" id="wage">
+  <div class="section-label">
+    <span class="section-num">WAGE</span>
+    <h2>2026 法定最低工資 (UMK)</h2>
+  </div>
+
+  <table class="cmp-table">
+    <thead>
+      <tr>
+        <th style="width:16%">園區</th>
+        <th>行政區<span class="sub">PROVINCE</span></th>
+        <th>2026 UMK<span class="sub">Rp / 月</span></th>
+        <th>換算 USD<span class="sub">約估</span></th>
+        <th>換算台幣<span class="sub">約估 ×4.85</span></th>
+        <th>紡織業 UMSK<span class="sub">Sektor I</span></th>
+        <th>較 2025 漲幅</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="row-hd">Subang SP</td>
+        <td>Kab. Subang<br>West Java</td>
+        <td><span class="data-num">Rp 3,737,482</span></td>
+        <td>USD 229</td>
+        <td>約 NT$ 1,111</td>
+        <td>未設紡織 UMSK</td>
+        <td>+6.53%</td>
+      </tr>
+      <tr>
+        <td class="row-hd">冠西 KCI</td>
+        <td>Kab. Sukabumi<br>West Java</td>
+        <td><span class="data-num">Rp 3,831,926</span></td>
+        <td>USD 235</td>
+        <td>約 NT$ 1,139</td>
+        <td>未設紡織 UMSK</td>
+        <td>+6.40%</td>
+      </tr>
+      <tr>
+        <td class="row-hd">摩登 MCIE</td>
+        <td>Kab. Serang<br>Banten</td>
+        <td><span class="data-num">Rp 5,178,521</span></td>
+        <td>USD 317</td>
+        <td>約 NT$ 1,538</td>
+        <td>Rp 5,345,521<br>強制適用 +3.2%</td>
+        <td>+6.61%</td>
+      </tr>
+      <tr>
+        <td class="row-hd">克塔賈蒂 KIEM</td>
+        <td>Kab. Majalengka<br>West Java</td>
+        <td><span class="data-num">Rp 2,595,368</span></td>
+        <td>USD 159</td>
+        <td>約 NT$ 772</td>
+        <td>未設紡織 UMSK</td>
+        <td>+4.92%</td>
+      </tr>
+      <tr style="background:#f4f1e8 !important">
+        <td class="row-hd">Suryacipta Karawang<small>(同集團參考)</small></td>
+        <td>Kab. Karawang<br>West Java</td>
+        <td><span class="data-num">Rp 5,886,853</span></td>
+        <td>USD 360</td>
+        <td>約 NT$ 1,748</td>
+        <td>未設紡織 UMSK</td>
+        <td>+6.31%</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="infobox">
+    <b>勞動成本試算 (1,000 名員工 / 年)：</b><br>
+    以最低工資基準計算 (不含 BPJS、加班、津貼)：<br>
+    KIEM Rp 311億 ≈ USD 191萬<br>
+    Subang SP Rp 448億 ≈ USD 275萬<br>
+    KCI Rp 460億 ≈ USD 282萬<br>
+    MCIE (含 UMSK) Rp 641億 ≈ USD 393萬
+  </div>
+</div>
+
+<!-- ─────────── PANEL 4: INFRA ─────────── -->
+<div class="panel" id="infra">
+  <div class="section-label">
+    <span class="section-num">INFRA</span>
+    <h2>水電廢水設施規格</h2>
+  </div>
+
+  <table class="cmp-table">
+    <thead>
+      <tr>
+        <th style="width:14%">項目</th>
+        <th>Subang Smartpolitan<span class="sub">SSP</span></th>
+        <th>冠西 KCI<span class="sub">Cikembar</span></th>
+        <th>摩登 MCIE<span class="sub">Cikande</span></th>
+        <th>克塔賈蒂 KIEM<span class="sub">Majalengka</span></th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="row-hd">供水容量<small>每日</small></td>
+        <td><span class="data-num">15,400 m³ / 日</span></td>
+        <td>未公開容量 (PDAM)<br>費用：<span class="data-num">Rp 28,080 / m³</span><br>園區自製生活用水 Rp 14,000 / m³</td>
+        <td><span class="data-num">8,000 m³ / 日</span><br>(清真 MUI 認證)</td>
+        <td>Cimanuk 河 + 5 ha 蓄水池<br>具體容量需向 PDAM 確認</td>
+      </tr>
+      <tr>
+        <td class="row-hd">廢水處理<small>每日</small></td>
+        <td><span class="data-num">10,300 m³ / 日</span><br>染整廢水接受規格書需向園區索取</td>
+        <td><span class="data-num">4,500+ m³ / 日</span><br>BOD ≤ 400 mg/L<br>COD ≤ 800 mg/L<br>明確支援染整、電鍍、PCB</td>
+        <td><span class="data-num">5,000 m³ / 日</span> (施工中)<br>染整廢水標準需向 MCIE 確認</td>
+        <td>整合式 WTP<br>規格未公開<br>染整廢水接受能力需向 KIEM 確認</td>
+      </tr>
+      <tr>
+        <td class="row-hd">電力</td>
+        <td>60 MVA (Stage 1)<br>PLN 綠色認證電力</td>
+        <td>PLN 工業電費 <span class="data-num">USD 0.069 / kWh</span><br>(≈ NT$ 2.21)<br>尖峰 Rp 1,553.67 / 離峰 Rp 1,035.78</td>
+        <td>PLN 150 kV 變電站</td>
+        <td>PLN Premium 專線<br>與 PLN 特別協議保證不停電</td>
+      </tr>
+      <tr>
+        <td class="row-hd">天然氣</td>
+        <td>PGN 已備妥</td>
+        <td>未明確列出<br>需詢問</td>
+        <td>PGN 管線已到位</td>
+        <td>PGN 直供 (上下游整合)</td>
+      </tr>
+      <tr>
+        <td class="row-hd">污水接收費</td>
+        <td>未公開</td>
+        <td><span class="data-num">USD 0.7 / m³</span></td>
+        <td>未公開</td>
+        <td>未公開</td>
+      </tr>
+      <tr>
+        <td class="row-hd">園區維護費</td>
+        <td>未公開</td>
+        <td><span class="data-num">Rp 650 / m² / 月</span></td>
+        <td>未公開</td>
+        <td>未公開</td>
+      </tr>
+      <tr>
+        <td class="row-hd">染整廠相關支援</td>
+        <td>已有同類紡織廠 (Zhangjiagang Hengyang)<br>WWTP 規格書需向園區索取</td>
+        <td>園區簡報明確列示 dyeing &amp; finishing、電鍍、PCB</td>
+        <td>未公開染整廢水分類標準<br>需向 MCIE 確認</td>
+        <td>未公開染整廢水分類標準<br>需向 KIEM 確認</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ─────────── PANEL 5: AIRPORT ─────────── -->
+<div class="panel" id="airport">
+  <div class="section-label">
+    <span class="section-num">AIRPORT</span>
+    <h2>機場、港口與國際航線</h2>
+  </div>
+
+  <table class="cmp-table">
+    <thead>
+      <tr>
+        <th style="width:14%">項目</th>
+        <th>Subang SP</th>
+        <th>冠西 KCI</th>
+        <th>摩登 MCIE</th>
+        <th>克塔賈蒂 KIEM</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="row-hd">國際線指定機場</td>
+        <td colspan="4" style="text-align:center; background:#f4f1e8;"><b>CGK · Soekarno-Hatta International Airport</b><br>所有國際航線一律從 CGK 起降</td>
+      </tr>
+      <tr>
+        <td class="row-hd">距 CGK 距離<small>陸路</small></td>
+        <td><span class="data-num">~90 km</span><br>約 1.5 h<br>(Cipali Toll)</td>
+        <td><span class="data-num">~115 km</span><br>約 1.5–2.5 h<br>Bocimi Sec.3 通車後縮至 1.5 h</td>
+        <td><span class="data-num">~68 km</span><br>約 1.5 h<br>(Jakarta–Tangerang Toll)</td>
+        <td><span class="data-num">~190 km</span><br>約 3.5+ h<br>(Cipali Toll)</td>
+      </tr>
+      <tr>
+        <td class="row-hd">國內航班轉接<small>到 CGK</small></td>
+        <td>不需 (直接陸路)</td>
+        <td>不需 (直接陸路)</td>
+        <td>不需 (直接陸路)</td>
+        <td>選項：KJT (5 km) → CGK 國內線約 45 min<br>班次有限 (KJT 目前以國內為主)</td>
+      </tr>
+      <tr>
+        <td class="row-hd">→ 台北 TPE<small>直飛</small></td>
+        <td colspan="4" style="text-align:center; background:#f4f1e8;">CGK 每週 20+ 班直飛 (中華 CI · 長榮 BR · 星宇 JX)<br>飛行時間：5 h 25 min</td>
+      </tr>
+      <tr>
+        <td class="row-hd">→ 胡志明市 SGN<small>直飛</small></td>
+        <td colspan="4" style="text-align:center; background:#f4f1e8;">CGK 每週 14 班直飛 (越南航空 VN · 越捷 VJ)<br>飛行時間：3 h 10 min</td>
+      </tr>
+      <tr>
+        <td class="row-hd">→ 新加坡 SIN</td>
+        <td colspan="4" style="text-align:center;">CGK 多家航空、每日班次，約 1 h 55 min</td>
+      </tr>
+      <tr>
+        <td class="row-hd">距最近港口</td>
+        <td><b>Patimban 40 km</b><br>專用高速 2027 Q1 通車</td>
+        <td>Tanjung Priok ~115 km<br>(Bocimi + Jagorawi)</td>
+        <td>Tanjung Priok 75 km<br>火車 Dry Port 直達 37 min</td>
+        <td>Patimban 70 km (Cipali Toll)<br>Cirebon 30 km</td>
+      </tr>
+      <tr>
+        <td class="row-hd">Patimban 港<small>2027 容量目標</small></td>
+        <td colspan="4" style="text-align:center;"><span class="data-num">750 萬 TEU / 年</span> (Phase 2&3，目標 2027 Q1 前完工)<br>專用收費公路 KM89 接 Cipali Toll，目標竣工 2027 年 3 月底</td>
+      </tr>
+      <tr>
+        <td class="row-hd">Tanjung Priok 港<small>2019 / 2027</small></td>
+        <td colspan="4" style="text-align:center;">2019 年 150 萬 TEU → 2027 年目標 750 萬 TEU<br>(印尼第一大商業港)</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ─────────── PANEL 6: LIFE ─────────── -->
+<div class="panel" id="life">
+  <div class="section-label">
+    <span class="section-num">LIFE</span>
+    <h2>外幹住宿與生活機能</h2>
+    <span class="section-lead">外幹住宿一律規劃於工業區內或鄰近；市區為吃飯購物用途</span>
+  </div>
+
+  <table class="cmp-table">
+    <thead>
+      <tr>
+        <th style="width:15%">園區</th>
+        <th>外幹住宿規劃</th>
+        <th>就近吃飯購物市區</th>
+        <th>主要賣場 / 商業設施</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="row-hd">Subang SP</td>
+        <td>住工業區內<br><small>園區內含住宅與商業整合區 (Smart City 規劃)</small></td>
+        <td><b>Subang 縣城</b> (近)<br><b>Karawang 市區</b> (~50 km)</td>
+        <td>Subang 縣城基本配套；Karawang 市區：Karawang Central Plaza、Festive Walk Mall、Galuh Mas 商業區、Aeon Mall</td>
+      </tr>
+      <tr>
+        <td class="row-hd">冠西 KCI</td>
+        <td>住工業區內或旁邊<br><small>集團於園區附近設置住宿</small></td>
+        <td><b>茂物 Bogor</b><br>~60 km / 1.5–2 h<br>(Bocimi Sec.3 通車後縮短)</td>
+        <td>Botani Square Mall、AEON Mall Sentul City、Lippo Plaza Keboen Raya<br><small>蘇加武眉市區較小，多前往 Bogor</small></td>
+      </tr>
+      <tr>
+        <td class="row-hd">摩登 MCIE</td>
+        <td>住工業區內<br><small>園區內 Swiss-Belinn 三星酒店 165 間客房 / 含會議廳、餐廳、健身房、泳池</small></td>
+        <td><b>西朗 Serang</b> (近，萬丹省會)<br><b>雅加達 Jakarta</b> (~70 min)</td>
+        <td>Mall of Serang、ICE BSD Mall；雅加達：Grand Indonesia、Plaza Senayan、Pondok Indah Mall、Pacific Place、Central Park<br><small>Modern Golf Country Club (30 km)</small></td>
+      </tr>
+      <tr>
+        <td class="row-hd">克塔賈蒂 KIEM</td>
+        <td>住工業區附近<br><small>園區內住宅區開發中；未來 Aerocity 規劃 3,400 ha</small></td>
+        <td><b>井里汶 Cirebon</b> (30 km / 30–40 min)<br><b>萬隆 Bandung</b> (50 km / 1 h)</td>
+        <td>井里汶：Grage Mall、Cirebon Super Block (CSB) Mall、Transmart Cirebon<br>萬隆：Trans Studio Mall、Paris Van Java、Cihampelas Walk</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="infobox">
+    <b>外幹住宿政策：</b>四大工業區外籍幹部一律安排於工業區內或鄰近住宿，市區僅作為週末或下班後吃飯購物用途。MCIE 為唯一園區內已有國際品牌三星酒店 (Swiss-Belinn)；SSP 為 Smart City 整合規劃含住宅區；KCI 由集團自行安排廠區附近住宿；KIEM 住宿區仍在開發中。
+  </div>
+</div>
+
+<!-- ─────────── PANEL 7: TODO ─────────── -->
+<div class="panel" id="todo">
+  <div class="section-label">
+    <span class="section-num">TODO</span>
+    <h2>決策前須向各園區索取或釐清的項目</h2>
+  </div>
+
+  <div class="checklist">
+    <div class="check-item">
+      <div class="check-num">01</div>
+      <div class="check-body">
+        <b>各園區廢水接受規格書 (COD、BOD、色度、pH、重金屬上限)</b>
+        <small>目前僅 KCI 公布 BOD 400 / COD 800 mg/L；Subang SP、MCIE、KIEM 均需正式索取書面規格</small>
+      </div>
+      <div class="check-who"><span class="badge neu">所有園區</span></div>
+    </div>
+
+    <div class="check-item">
+      <div class="check-num">02</div>
+      <div class="check-body">
+        <b>KCI 地下水 (SIPAT) 申請可行性、費用與時程</b>
+        <small>KCI 自來水 Rp 28,080/m³，若以 4,000 m³/日計算年水費約 USD 250 萬；園區簡報表示可協助申請 SIPAT</small>
+      </div>
+      <div class="check-who"><span class="badge neu">KCI</span></div>
+    </div>
+
+    <div class="check-item">
+      <div class="check-num">03</div>
+      <div class="check-body">
+        <b>Subang Smartpolitan 可取得地塊規格與售/租報價</b>
+        <small>同集團 Suryacipta Karawang 為對照組；Subang SP 第一期 400 ha 已交付，地塊大小、單價需向 SSIA 詢問</small>
+      </div>
+      <div class="check-who"><span class="badge neu">SSP</span></div>
+    </div>
+
+    <div class="check-item">
+      <div class="check-num">04</div>
+      <div class="check-body">
+        <b>MCIE 污水廠 (5,000 m³/日) 竣工時程與染整廢水可接受度</b>
+        <small>MCIE 污水廠標注為 under construction，竣工時程未公開</small>
+      </div>
+      <div class="check-who"><span class="badge neu">MCIE</span></div>
+    </div>
+
+    <div class="check-item">
+      <div class="check-num">05</div>
+      <div class="check-body">
+        <b>各園區污水接收費、廠房租金、土地售價完整報價</b>
+        <small>目前僅 KCI 公開 (污水 USD 0.7/m³、廠租 USD 3/m²/月、維護費 Rp 650/m²/月)；其餘三園區須正式詢報以完成財務模型</small>
+      </div>
+      <div class="check-who"><span class="badge neu">SSP / MCIE / KIEM</span></div>
+    </div>
+
+    <div class="check-item">
+      <div class="check-num">06</div>
+      <div class="check-body">
+        <b>AMDAL (環境影響評估) 預估時程與費用</b>
+        <small>染整業屬印尼分類之高污染行業，AMDAL 通常需 6–18 個月；自簽 MOU 到合法投產約 2–2.5 年</small>
+      </div>
+      <div class="check-who"><span class="badge neu">所有園區</span></div>
+    </div>
+
+    <div class="check-item">
+      <div class="check-num">07</div>
+      <div class="check-body">
+        <b>Tax Holiday、KITE、Kawasan Berikat 保稅區適用性</b>
+        <small>紡織業屬印尼 18 大先鋒產業；保稅區需廠房面積 ≥ 10,000 m²；另有 2 年機台進口免關稅、Pioneer Industry 5–20 年免稅期</small>
+      </div>
+      <div class="check-who"><span class="badge neu">所有園區</span></div>
+    </div>
+
+    <div class="check-item">
+      <div class="check-num">08</div>
+      <div class="check-body">
+        <b>Bocimi Section 3 (KCI) 與 Patimban 直達公路 (Subang SP) 通車進度</b>
+        <small>Bocimi Sec.3 (Cibadak–Sukabumi Barat) 於 2026 年 3 月 Lebaran 試開，正式收費預估 Q2–Q3；Patimban 直達收費公路目標 2027 Q1</small>
+      </div>
+      <div class="check-who"><span class="badge neu">PT Jasamarga</span></div>
+    </div>
+
+    <div class="check-item">
+      <div class="check-num">09</div>
+      <div class="check-body">
+        <b>KJT 機場國際航線新增進度</b>
+        <small>KJT 目前以國內航班與朝聖航線為主；若 KIEM 列為候選，須確認 KJT 是否新增台北/胡志明/新加坡直飛</small>
+      </div>
+      <div class="check-who"><span class="badge neu">KIEM</span></div>
+    </div>
+
+    <div class="check-item">
+      <div class="check-num">10</div>
+      <div class="check-body">
+        <b>各園區現有租戶名單與產業分布</b>
+        <small>MCIE 已公開 306 家租戶名單；其餘三園區須索取以確認群聚效應</small>
+      </div>
+      <div class="check-who"><span class="badge neu">SSP / KCI / KIEM</span></div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /main -->
+
+<script>
+function show(id, btn) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  btn.classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+
+  // 切換到地圖時，要求 Leaflet 重新計算尺寸
+  if (id === 'map' && window._lmap) {
+    setTimeout(() => window._lmap.invalidateSize(), 100);
+  }
+}
+
+// ───── Real Map (Leaflet + OpenStreetMap) ─────
+const map = L.map('realmap', {
+  center: [-6.5, 107.2],
+  zoom: 8,
+  scrollWheelZoom: true
+});
+window._lmap = map;
+
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  attribution: '© OpenStreetMap contributors',
+  maxZoom: 18
+}).addTo(map);
+
+// 工業區 (紅圓)
+const estates = [
+  {code: 'S', name: 'Subang Smartpolitan',  cn: 'Subang Smartpolitan',           lat: -6.5036, lng: 107.6500, sub: 'Cipeundeuy, Kab. Subang · 2,717 ha'},
+  {code: 'K', name: 'KCI Cikembar',          cn: '冠西工業園區',                    lat: -6.9722, lng: 106.8722, sub: 'Cikembar, Kab. Sukabumi · 229 ha'},
+  {code: 'M', name: 'Modern Cikande (MCIE)', cn: '摩登奇坎德工業園區',              lat: -6.2742, lng: 106.3431, sub: 'Cikande, Kab. Serang · 3,175 ha'},
+  {code: 'I', name: 'Kertajati (KIEM)',      cn: '克塔賈蒂國際工業園區',            lat: -6.6442, lng: 108.1050, sub: 'Kertajati, Kab. Majalengka · 400 ha'}
+];
+
+estates.forEach(e => {
+  const icon = L.divIcon({
+    className: '',
+    html: `<div class="marker-estate">${e.code}</div>`,
+    iconSize: [32, 32],
+    iconAnchor: [16, 16]
+  });
+  L.marker([e.lat, e.lng], { icon }).addTo(map)
+    .bindPopup(`<b>${e.cn}</b>${e.name}<br><small style="color:#6b6357">${e.sub}</small>`);
+});
+
+// 機場 (藍方)
+const airports = [
+  {iata: 'CGK', name: 'Soekarno-Hatta Intl', cn: '蘇加諾-哈達國際機場', lat: -6.1256, lng: 106.6558, sub: '印尼第一大國際機場 · 所有國際線指定'},
+  {iata: 'KJT', name: 'Kertajati Intl',       cn: '克塔賈蒂國際機場',     lat: -6.6489, lng: 108.1719, sub: '目前以國內航班為主'}
+];
+
+airports.forEach(a => {
+  const icon = L.divIcon({
+    className: '',
+    html: `<div class="marker-airport">✈</div>`,
+    iconSize: [26, 26],
+    iconAnchor: [13, 13]
+  });
+  L.marker([a.lat, a.lng], { icon }).addTo(map)
+    .bindPopup(`<b>${a.iata} · ${a.cn}</b>${a.name}<br><small style="color:#6b6357">${a.sub}</small>`);
+});
+
+// 港口 (綠方)
+const ports = [
+  {name: 'Tanjung Priok', cn: '丹戎不碌港', lat: -6.1067, lng: 106.8861, sub: '北雅加達 · 印尼最大商業港'},
+  {name: 'Patimban',      cn: '巴丁邦深水港', lat: -6.2434, lng: 107.9617, sub: '蘇邦縣 · 2027 Q1 容量目標 750 萬 TEU'},
+  {name: 'Merak',         cn: 'Merak 港',   lat: -5.9320, lng: 106.0033, sub: '萬丹省西端 · 渡輪、短程貨運'},
+  {name: 'Cigading',      cn: 'Cigading 港', lat: -5.9911, lng: 106.0167, sub: '萬丹省西端 · 散貨港'}
+];
+
+ports.forEach(p => {
+  const icon = L.divIcon({
+    className: '',
+    html: `<div class="marker-port">⚓</div>`,
+    iconSize: [24, 24],
+    iconAnchor: [12, 12]
+  });
+  L.marker([p.lat, p.lng], { icon }).addTo(map)
+    .bindPopup(`<b>${p.cn}</b>${p.name}<br><small style="color:#6b6357">${p.sub}</small>`);
+});
+
+// 主要城市 (參考點，不放 marker，只在地圖上用 zoom 自動顯示)
+// 等地圖載入完畢後，自動 fitBounds 把所有點納入視窗
+const all = [...estates, ...airports, ...ports].map(o => [o.lat, o.lng]);
+map.fitBounds(all, { padding: [40, 40] });
+</script>
+</body>
+</html>
